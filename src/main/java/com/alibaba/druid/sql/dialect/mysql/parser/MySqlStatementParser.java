@@ -1620,6 +1620,16 @@ public class MySqlStatementParser extends SQLStatementParser {
         if (lexer.token() == Token.FROM) {
             lexer.nextToken();
             SQLName database = exprParser.name();
+            if (lexer.token() == Token.SUB && database instanceof SQLIdentifierExpr) {
+                lexer.mark();
+                lexer.nextToken();
+                String strVal = lexer.stringVal();
+                lexer.nextToken();
+                if (database instanceof SQLIdentifierExpr) {
+                    SQLIdentifierExpr ident = (SQLIdentifierExpr) database;
+                    ident.setName(ident.getName() + "-" + strVal);
+                }
+            }
             stmt.setDatabase(database);
         }
 
@@ -1804,7 +1814,7 @@ public class MySqlStatementParser extends SQLStatementParser {
         } else if (lexer.token() == Token.SET) {
             lexer.nextToken();
 
-            SQLInsertStatement.ValuesClause values = new SQLInsertStatement.ValuesClause();
+            ValuesClause values = new ValuesClause();
             stmt.getValuesList().add(values);
             for (; ; ) {
                 stmt.addColumn(this.exprParser.name());
@@ -2154,7 +2164,7 @@ public class MySqlStatementParser extends SQLStatementParser {
         } else if (lexer.token() == Token.SET) {
             lexer.nextToken();
 
-            SQLInsertStatement.ValuesClause values = new SQLInsertStatement.ValuesClause();
+            ValuesClause values = new ValuesClause();
             insertStatement.getValuesList().add(values);
 
             for (; ; ) {
@@ -2252,10 +2262,10 @@ public class MySqlStatementParser extends SQLStatementParser {
                     }
                 }
 
-                SQLInsertStatement.ValuesClause values = new SQLInsertStatement.ValuesClause(valueExprList);
+                ValuesClause values = new ValuesClause(valueExprList);
                 valueClauseList.add(values);
             } else {
-                SQLInsertStatement.ValuesClause values = new SQLInsertStatement.ValuesClause(new ArrayList<SQLExpr>(0));
+                ValuesClause values = new ValuesClause(new ArrayList<SQLExpr>(0));
                 valueClauseList.add(values);
             }
 
